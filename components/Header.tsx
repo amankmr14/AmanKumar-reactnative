@@ -1,7 +1,7 @@
 import React from "react";
 import { Text, View } from "react-native";
 
-const Header = () => {
+const Header: React.FC = () => {
   return (
     <View style={{ paddingHorizontal: 10 }}>
       <Text

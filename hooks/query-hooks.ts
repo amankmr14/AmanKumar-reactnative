@@ -25,7 +25,11 @@ interface IProductList {
   products: ProductDetails[];
 }
 
-export const getCategoryList = (): UseQueryResult<ICategoryOptions> => {
+interface IProduct {
+  product: ProductDetails;
+}
+
+export const useGetCategoryList = (): UseQueryResult<ICategoryOptions> => {
   return useQuery(
     ["get-category-list"],
     async (): Promise<ICategoryOptions> => {
@@ -37,12 +41,14 @@ export const getCategoryList = (): UseQueryResult<ICategoryOptions> => {
             "Bearer " +
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFtYW5rbXI3NjVAZ21haWwuY29tIiwiZ2l0aHViIjoiaHR0cHM6Ly9naXRodWIuY29tL2FtYW5rbXIxNC9BbWFuS3VtYXItcmVhY3RuYXRpdmUuZ2l0IiwiaWF0IjoxNjczNjEzNjUyLCJleHAiOjE2NzQwNDU2NTJ9.YsPJ2najUuWzSp32Z3LKrmzl_wnomFaOLDdrh2ouScg",
         },
-      }).then((res) => res.data);
+      })
+        .then((res) => res.data)
+        .catch((err) => console.log(err));
     }
   );
 };
 
-export const getAllProducts = (): UseQueryResult<IProductList> => {
+export const useGetAllProducts = (): UseQueryResult<IProductList> => {
   return useQuery(["get-all-products"], async (): Promise<IProductList> => {
     return axios({
       method: "get",
@@ -52,6 +58,55 @@ export const getAllProducts = (): UseQueryResult<IProductList> => {
           "Bearer " +
           "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFtYW5rbXI3NjVAZ21haWwuY29tIiwiZ2l0aHViIjoiaHR0cHM6Ly9naXRodWIuY29tL2FtYW5rbXIxNC9BbWFuS3VtYXItcmVhY3RuYXRpdmUuZ2l0IiwiaWF0IjoxNjczNjEzNjUyLCJleHAiOjE2NzQwNDU2NTJ9.YsPJ2najUuWzSp32Z3LKrmzl_wnomFaOLDdrh2ouScg",
       },
-    }).then((res) => res.data);
+    })
+      .then((res) => res.data)
+      .catch((err) => console.log(err));
   });
+};
+
+export const useGetProductDetails = ({
+  id,
+}: {
+  id: string;
+}): UseQueryResult<IProduct> => {
+  return useQuery(["get-product-details", id], async (): Promise<IProduct> => {
+    return axios({
+      method: "get",
+      url: `${endpoints.getProducts}/${id}`,
+      headers: {
+        Authorization:
+          "Bearer " +
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFtYW5rbXI3NjVAZ21haWwuY29tIiwiZ2l0aHViIjoiaHR0cHM6Ly9naXRodWIuY29tL2FtYW5rbXIxNC9BbWFuS3VtYXItcmVhY3RuYXRpdmUuZ2l0IiwiaWF0IjoxNjczNjEzNjUyLCJleHAiOjE2NzQwNDU2NTJ9.YsPJ2najUuWzSp32Z3LKrmzl_wnomFaOLDdrh2ouScg",
+      },
+    })
+      .then((res) => res.data)
+      .catch((err) => console.log(err));
+  });
+};
+
+export const useGetProductByCategory = ({
+  id,
+}: {
+  id: string;
+}): UseQueryResult<IProductList> => {
+  return useQuery(
+    ["get-product-by-category", id],
+    async (): Promise<IProductList> => {
+      return axios({
+        method: "get",
+        url: `${endpoints.getCategories}/${id}`,
+        headers: {
+          Authorization:
+            "Bearer " +
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFtYW5rbXI3NjVAZ21haWwuY29tIiwiZ2l0aHViIjoiaHR0cHM6Ly9naXRodWIuY29tL2FtYW5rbXIxNC9BbWFuS3VtYXItcmVhY3RuYXRpdmUuZ2l0IiwiaWF0IjoxNjczNjEzNjUyLCJleHAiOjE2NzQwNDU2NTJ9.YsPJ2najUuWzSp32Z3LKrmzl_wnomFaOLDdrh2ouScg",
+        },
+      })
+        .then((res) => res.data)
+        .catch((err) => console.log(err));
+    }
+  );
+};
+
+export const useAddNewProduct = () => {
+  return {};
 };
