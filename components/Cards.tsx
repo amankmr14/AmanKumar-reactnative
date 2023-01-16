@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   detailContainer: {
+    flex: 1,
     backgroundColor: "#000000",
     borderRadius: 7,
     shadowColor: "#000000",
@@ -43,13 +44,14 @@ const styles = StyleSheet.create({
   detailText: {
     color: "#ffffff",
     paddingHorizontal: 5,
-    paddingBottom: 4
+    paddingBottom: 4,
+    fontSize: 15,
+    fontWeight: "500"
   },
   image: {
     height: undefined,
     aspectRatio: 1,
     width: "100%",
-    
   }
 });
 

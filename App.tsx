@@ -20,7 +20,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
         <SafeAreaView style={styles.StatusBar}>
-          <StatusBar />
+          <StatusBar barStyle={"dark-content"}/>
           <NavigationContainer>
             <Navigation />
           </NavigationContainer>

@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  Button,
+  ActivityIndicator,
   TouchableOpacity,
   FlatList,
 } from "react-native";
@@ -24,11 +24,14 @@ type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
 const Home = ({ navigation }: Props) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [searchInput, setSearchInput] = useState<string>("");
   const [categorizedProductList, setCategorizedProductList] = useState<
     ProductDetails[] | undefined
   >([]);
-  const { data: categoryListData } = useGetCategoryList();
-  const { data: productListData } = useGetAllProducts();
+  const { data: categoryListData, isFetching: isFetchingCategoryList } =
+    useGetCategoryList();
+  const { data: productListData, isFetching: isFetchingProductList } =
+    useGetAllProducts();
 
   const handleCategoryChange = (name: string) => {
     setSelectedCategory(name);
@@ -38,8 +41,11 @@ const Home = ({ navigation }: Props) => {
     setCategorizedProductList(categorizedData);
   };
 
+  const setSearchValue = (query: string) => {
+    setSearchInput(query);
+  };
+
   const handleNavigateToProductDetails = (productId: string) => {
-    console.log(productId);
     navigation.navigate("ProductDetails", {
       productId,
     });
@@ -47,7 +53,23 @@ const Home = ({ navigation }: Props) => {
 
   const handleAddNewProduct = () => {
     navigation.navigate("AddProduct");
-  }
+  };
+
+  useEffect(() => {
+    if (searchInput) {
+      let filteredList;
+      if (categorizedProductList?.length) {
+        filteredList = categorizedProductList.filter((product) =>
+          product.name.includes(searchInput)
+        );
+      } else {
+        filteredList = productListData?.products.filter((product) =>
+          product.name.includes(searchInput)
+        );
+      }
+      setCategorizedProductList(filteredList);
+    }
+  }, [searchInput]);
 
   const renderItem = ({ item }: { item: ProductDetails }) => {
     return (
@@ -63,78 +85,86 @@ const Home = ({ navigation }: Props) => {
 
   return (
     <>
-      <View>
-        <Header />
-        <ScrollView
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          style={{ marginBottom: 10 }}
-        >
-          <View style={styles.categoryButton}>
-            <TouchableOpacity
-              style={
-                !selectedCategory
-                  ? {
-                      ...styles.customButton,
-                      backgroundColor: "#ffffff",
-                      borderWidth: 2,
-                      borderColor: "#000000",
-                    }
-                  : styles.customButton
-              }
-              onPress={() => handleCategoryChange("")}
+      {isFetchingCategoryList || isFetchingProductList ? (
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <ActivityIndicator />
+        </View>
+      ) : (
+        <>
+          <View>
+            <Header setSearchValue={setSearchValue} />
+            <ScrollView
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              style={{ marginBottom: 10 }}
             >
-              <Text
-                style={
-                  !selectedCategory
-                    ? { ...styles.customButtonText, color: "#000000" }
-                    : styles.customButtonText
-                }
-              >
-                All
-              </Text>
-            </TouchableOpacity>
-          </View>
-          {categoryListData?.categories?.map((category) => (
-            <View style={styles.categoryButton} key={category._id}>
-              <TouchableOpacity
-                style={
-                  selectedCategory === category.name
-                    ? {
-                        ...styles.customButton,
-                        backgroundColor: "#ffffff",
-                        borderWidth: 2,
-                        borderColor: "#000000",
-                      }
-                    : styles.customButton
-                }
-                onPress={() => handleCategoryChange(category.name)}
-              >
-                <Text
+              <View style={styles.categoryButton}>
+                <TouchableOpacity
                   style={
-                    selectedCategory === category.name
-                      ? { ...styles.customButtonText, color: "#000000" }
-                      : styles.customButtonText
+                    !selectedCategory
+                      ? {
+                          ...styles.customButton,
+                          backgroundColor: "#ffffff",
+                          borderWidth: 2,
+                          borderColor: "#000000",
+                        }
+                      : styles.customButton
                   }
+                  onPress={() => handleCategoryChange("")}
                 >
-                  {category.name}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-        </ScrollView>
-        <FlatList
-          data={
-            selectedCategory
-              ? categorizedProductList
-              : productListData?.products
-          }
-          keyExtractor={(product) => product?._id}
-          renderItem={renderItem}
-          numColumns={2}
-        />
-      </View>
-      <FloatingButton onPress={handleAddNewProduct} />
+                  <Text
+                    style={
+                      !selectedCategory
+                        ? { ...styles.customButtonText, color: "#000000" }
+                        : styles.customButtonText
+                    }
+                  >
+                    All
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              {categoryListData?.categories?.map((category) => (
+                <View style={styles.categoryButton} key={category._id}>
+                  <TouchableOpacity
+                    style={
+                      selectedCategory === category.name
+                        ? {
+                            ...styles.customButton,
+                            backgroundColor: "#ffffff",
+                            borderWidth: 2,
+                            borderColor: "#000000",
+                          }
+                        : styles.customButton
+                    }
+                    onPress={() => handleCategoryChange(category.name)}
+                  >
+                    <Text
+                      style={
+                        selectedCategory === category.name
+                          ? { ...styles.customButtonText, color: "#000000" }
+                          : styles.customButtonText
+                      }
+                    >
+                      {category.name}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </ScrollView>
+            <FlatList
+              data={
+                selectedCategory || searchInput
+                  ? categorizedProductList
+                  : productListData?.products
+              }
+              keyExtractor={(product) => product?._id}
+              renderItem={renderItem}
+              numColumns={2}
+            />
+          </View>
+          <FloatingButton onPress={handleAddNewProduct} />
+        </>
+      )}
     </>
   );
 };
@@ -148,12 +178,11 @@ const styles = StyleSheet.create({
   },
   customButton: {
     backgroundColor: "#000000",
-    paddingHorizontal: 10,
-    paddingVertical: 7,
     borderRadius: 5,
   },
   customButtonText: {
     color: "#ffffff",
+    padding: 10,
     fontWeight: "600",
     fontSize: 16,
   },

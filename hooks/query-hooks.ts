@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useQuery, UseQueryResult } from "react-query";
+import { useQuery, UseQueryResult, useMutation } from "react-query";
 import { endpoints } from "../constants/urls";
 
 type CategoryOption = {
@@ -17,6 +17,15 @@ export type ProductDetails = {
   developerEmail: string;
 };
 
+type TFormData = {
+  Name: string;
+  Price?: number;
+  Category: string;
+  Description: string;
+  Avatar: string;
+  DeveloperEmail: string;
+};
+
 interface ICategoryOptions {
   categories: CategoryOption[];
 }
@@ -29,6 +38,9 @@ interface IProduct {
   product: ProductDetails;
 }
 
+const TOKEN =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFtYW5rbXI3NjVAZ21haWwuY29tIiwiZ2l0aHViIjoiaHR0cHM6Ly9naXRodWIuY29tL2FtYW5rbXIxNC9BbWFuS3VtYXItcmVhY3RuYXRpdmUuZ2l0IiwiaWF0IjoxNjczNjEzNjUyLCJleHAiOjE2NzQwNDU2NTJ9.YsPJ2najUuWzSp32Z3LKrmzl_wnomFaOLDdrh2ouScg";
+
 export const useGetCategoryList = (): UseQueryResult<ICategoryOptions> => {
   return useQuery(
     ["get-category-list"],
@@ -37,9 +49,7 @@ export const useGetCategoryList = (): UseQueryResult<ICategoryOptions> => {
         method: "get",
         url: endpoints.getCategories,
         headers: {
-          Authorization:
-            "Bearer " +
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFtYW5rbXI3NjVAZ21haWwuY29tIiwiZ2l0aHViIjoiaHR0cHM6Ly9naXRodWIuY29tL2FtYW5rbXIxNC9BbWFuS3VtYXItcmVhY3RuYXRpdmUuZ2l0IiwiaWF0IjoxNjczNjEzNjUyLCJleHAiOjE2NzQwNDU2NTJ9.YsPJ2najUuWzSp32Z3LKrmzl_wnomFaOLDdrh2ouScg",
+          Authorization: "Bearer " + TOKEN,
         },
       })
         .then((res) => res.data)
@@ -54,9 +64,7 @@ export const useGetAllProducts = (): UseQueryResult<IProductList> => {
       method: "get",
       url: endpoints.getProducts,
       headers: {
-        Authorization:
-          "Bearer " +
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFtYW5rbXI3NjVAZ21haWwuY29tIiwiZ2l0aHViIjoiaHR0cHM6Ly9naXRodWIuY29tL2FtYW5rbXIxNC9BbWFuS3VtYXItcmVhY3RuYXRpdmUuZ2l0IiwiaWF0IjoxNjczNjEzNjUyLCJleHAiOjE2NzQwNDU2NTJ9.YsPJ2najUuWzSp32Z3LKrmzl_wnomFaOLDdrh2ouScg",
+        Authorization: "Bearer " + TOKEN,
       },
     })
       .then((res) => res.data)
@@ -70,13 +78,12 @@ export const useGetProductDetails = ({
   id: string;
 }): UseQueryResult<IProduct> => {
   return useQuery(["get-product-details", id], async (): Promise<IProduct> => {
+    console.log(id);
     return axios({
       method: "get",
       url: `${endpoints.getProducts}/${id}`,
       headers: {
-        Authorization:
-          "Bearer " +
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFtYW5rbXI3NjVAZ21haWwuY29tIiwiZ2l0aHViIjoiaHR0cHM6Ly9naXRodWIuY29tL2FtYW5rbXIxNC9BbWFuS3VtYXItcmVhY3RuYXRpdmUuZ2l0IiwiaWF0IjoxNjczNjEzNjUyLCJleHAiOjE2NzQwNDU2NTJ9.YsPJ2najUuWzSp32Z3LKrmzl_wnomFaOLDdrh2ouScg",
+        Authorization: "Bearer " + TOKEN,
       },
     })
       .then((res) => res.data)
@@ -96,9 +103,7 @@ export const useGetProductByCategory = ({
         method: "get",
         url: `${endpoints.getCategories}/${id}`,
         headers: {
-          Authorization:
-            "Bearer " +
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFtYW5rbXI3NjVAZ21haWwuY29tIiwiZ2l0aHViIjoiaHR0cHM6Ly9naXRodWIuY29tL2FtYW5rbXIxNC9BbWFuS3VtYXItcmVhY3RuYXRpdmUuZ2l0IiwiaWF0IjoxNjczNjEzNjUyLCJleHAiOjE2NzQwNDU2NTJ9.YsPJ2najUuWzSp32Z3LKrmzl_wnomFaOLDdrh2ouScg",
+          Authorization: "Bearer " + TOKEN,
         },
       })
         .then((res) => res.data)
@@ -108,5 +113,16 @@ export const useGetProductByCategory = ({
 };
 
 export const useAddNewProduct = () => {
-  return {};
+  return useMutation(async (formData: TFormData): Promise<any> => {
+    return await axios({
+      method: "post",
+      url: endpoints.getProducts,
+      headers: {
+        Authorization: "Bearer " + TOKEN,
+      },
+      data: { ...formData },
+    })
+      .then((res) => res.data)
+      .catch((err) => console.log(err));
+  });
 };
